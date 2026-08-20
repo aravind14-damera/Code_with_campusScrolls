@@ -27,14 +27,13 @@ def create_or_update_progress(
     # Validate topic ID
     try:
         topic_id = ObjectId(data.topic_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid topic ID"
         )
 
-    # Check topic exists
+    # Check topic
     topic = db.topics.find_one({
         "_id": topic_id,
         "is_published": True
@@ -46,20 +45,14 @@ def create_or_update_progress(
             detail="Topic not found"
         )
 
-    # Logged-in user
     user_id = ObjectId(current_user["_id"])
+    now = datetime.now(timezone.utc)
 
     # Check existing progress
     existing_progress = db.progress.find_one({
         "user_id": user_id,
         "topic_id": topic_id
     })
-
-    now = datetime.now(timezone.utc)
-
-    # -----------------------------------------------------
-    # UPDATE EXISTING PROGRESS
-    # -----------------------------------------------------
 
     if existing_progress:
 
@@ -84,10 +77,7 @@ def create_or_update_progress(
             "progress_percentage": data.progress_percentage
         }
 
-    # -----------------------------------------------------
-    # CREATE NEW PROGRESS
-    # -----------------------------------------------------
-
+    # Create new progress
     progress = {
         "user_id": user_id,
         "topic_id": topic_id,
@@ -129,10 +119,13 @@ def get_my_progress(
         {
             "id": str(progress["_id"]),
             "topic_id": str(progress["topic_id"]),
-            "completed": progress["completed"],
-            "progress_percentage": progress["progress_percentage"],
-            "created_at": progress["created_at"],
-            "updated_at": progress["updated_at"]
+            "completed": progress.get("completed", False),
+            "progress_percentage": progress.get(
+                "progress_percentage",
+                0
+            ),
+            "created_at": progress.get("created_at"),
+            "updated_at": progress.get("updated_at")
         }
         for progress in progress_list
     ]
@@ -148,10 +141,8 @@ def get_topic_progress(
     current_user=Depends(get_current_user)
 ):
 
-    # Validate topic ID
     try:
         topic_object_id = ObjectId(topic_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -166,7 +157,6 @@ def get_topic_progress(
     })
 
     if not progress:
-
         return {
             "topic_id": topic_id,
             "completed": False,
@@ -176,10 +166,13 @@ def get_topic_progress(
     return {
         "id": str(progress["_id"]),
         "topic_id": str(progress["topic_id"]),
-        "completed": progress["completed"],
-        "progress_percentage": progress["progress_percentage"],
-        "created_at": progress["created_at"],
-        "updated_at": progress["updated_at"]
+        "completed": progress.get("completed", False),
+        "progress_percentage": progress.get(
+            "progress_percentage",
+            0
+        ),
+        "created_at": progress.get("created_at"),
+        "updated_at": progress.get("updated_at")
     }
 
 
@@ -193,23 +186,16 @@ def get_course_progress(
     current_user=Depends(get_current_user)
 ):
 
-    # -----------------------------------------------------
     # Validate course ID
-    # -----------------------------------------------------
-
     try:
         course_object_id = ObjectId(course_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid course ID"
         )
 
-    # -----------------------------------------------------
     # Check course
-    # -----------------------------------------------------
-
     course = db.courses.find_one({
         "_id": course_object_id,
         "is_published": True
@@ -221,10 +207,9 @@ def get_course_progress(
             detail="Course not found"
         )
 
-    # -----------------------------------------------------
-    # Get modules belonging to course
-    # -----------------------------------------------------
+    user_id = ObjectId(current_user["_id"])
 
+    # Get published modules
     modules = list(
         db.modules.find({
             "course_id": course_object_id,
@@ -232,75 +217,66 @@ def get_course_progress(
         })
     )
 
-    # -----------------------------------------------------
-    # Get module IDs
-    # -----------------------------------------------------
-
     module_ids = [
         module["_id"]
         for module in modules
     ]
 
-    # -----------------------------------------------------
-    # Get topics belonging to modules
-    # -----------------------------------------------------
-
-    topics = list(
-        db.topics.find({
-            "module_id": {
-                "$in": module_ids
-            },
-            "is_published": True
-        })
-    )
+    # Get published topics
+    if module_ids:
+        topics = list(
+            db.topics.find({
+                "module_id": {
+                    "$in": module_ids
+                },
+                "is_published": True
+            })
+        )
+    else:
+        topics = []
 
     total_topics = len(topics)
 
-    # -----------------------------------------------------
-    # Current user
-    # -----------------------------------------------------
-
-    user_id = ObjectId(current_user["_id"])
-
-    # -----------------------------------------------------
-    # Get topic IDs
-    # -----------------------------------------------------
+    if total_topics == 0:
+        return {
+            "course_id": course_id,
+            "course_title": course["title"],
+            "total_topics": 0,
+            "completed_topics": 0,
+            "progress_percentage": 0
+        }
 
     topic_ids = [
         topic["_id"]
         for topic in topics
     ]
 
-    # -----------------------------------------------------
-    # Get completed topics
-    # -----------------------------------------------------
+    # Get user's progress for these topics
+    progress_records = list(
+        db.progress.find({
+            "user_id": user_id,
+            "topic_id": {
+                "$in": topic_ids
+            }
+        })
+    )
 
-    completed_topics = db.progress.count_documents({
-        "user_id": user_id,
-        "topic_id": {
-            "$in": topic_ids
-        },
-        "completed": True
-    })
+    completed_topics = sum(
+        1
+        for progress in progress_records
+        if progress.get("completed", False)
+    )
 
-    # -----------------------------------------------------
-    # Calculate percentage
-    # -----------------------------------------------------
+    # Calculate average progress
+    total_progress = sum(
+        progress.get("progress_percentage", 0)
+        for progress in progress_records
+    )
 
-    if total_topics == 0:
-
-        progress_percentage = 0
-
-    else:
-
-        progress_percentage = round(
-            (completed_topics / total_topics) * 100,
-            2
-        )
-
-    # -----------------------------------------------------
-    # Response
-    # -----------------------------------------------------
+    progress_percentage = round(
+        total_progress / total_topics,
+        2
+    )
 
     return {
         "course_id": course_id,
@@ -321,10 +297,8 @@ def get_progress(
     current_user=Depends(get_current_user)
 ):
 
-    # Validate progress ID
     try:
         object_id = ObjectId(progress_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -347,10 +321,13 @@ def get_progress(
     return {
         "id": str(progress["_id"]),
         "topic_id": str(progress["topic_id"]),
-        "completed": progress["completed"],
-        "progress_percentage": progress["progress_percentage"],
-        "created_at": progress["created_at"],
-        "updated_at": progress["updated_at"]
+        "completed": progress.get("completed", False),
+        "progress_percentage": progress.get(
+            "progress_percentage",
+            0
+        ),
+        "created_at": progress.get("created_at"),
+        "updated_at": progress.get("updated_at")
     }
 
 
@@ -365,20 +342,16 @@ def update_progress(
     current_user=Depends(get_current_user)
 ):
 
-    # Validate progress ID
     try:
         progress_object_id = ObjectId(progress_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid progress ID"
         )
 
-    # Validate topic ID
     try:
         topic_object_id = ObjectId(data.topic_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -399,7 +372,6 @@ def update_progress(
             detail="Topic not found"
         )
 
-    # Update progress
     result = db.progress.update_one(
         {
             "_id": progress_object_id,
@@ -440,10 +412,8 @@ def delete_progress(
     current_user=Depends(get_current_user)
 ):
 
-    # Validate progress ID
     try:
         object_id = ObjectId(progress_id)
-
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

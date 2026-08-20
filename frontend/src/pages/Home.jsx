@@ -235,42 +235,6 @@ const Home = () => {
             </section>
 
 
-            {/* =========================
-                FOOTER
-            ========================= */}
-
-            <footer className="
-                border-t
-                border-slate-200
-                bg-white
-                py-6
-            ">
-
-                <div className="
-                    max-w-7xl
-                    mx-auto
-                    px-6
-                    text-center
-                ">
-
-                    <p className="
-                        text-sm
-                        text-slate-500
-                    ">
-                        © 2026{" "}
-                        <span className="
-                            font-semibold
-                            text-slate-700
-                        ">
-                            CodeWithCampusScrolls
-                        </span>
-                        . All rights reserved.
-                    </p>
-
-                </div>
-
-            </footer>
-
         </main>
     );
 };

@@ -454,32 +454,6 @@ const Signup = () => {
 
             </div>
 
-
-            {/* =========================
-                FOOTER
-            ========================= */}
-
-            <footer className="
-                border-t
-                border-slate-200
-                bg-white
-                py-6
-            ">
-
-                <p className="
-                    text-center
-                    text-sm
-                    text-slate-500
-                ">
-                    © 2026{" "}
-                    <span className="font-semibold text-slate-700">
-                        CampusScrolls
-                    </span>
-                    . All rights reserved.
-                </p>
-
-            </footer>
-
         </div>
     );
 };

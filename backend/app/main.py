@@ -12,7 +12,7 @@ from app.routes.problems import router as problems_router
 from app.routes.progress import router as progress_router
 from app.routes.learning import router as learning_router
 from app.routes.enrollments import router as enrollments_router
-from app.routes.dashboard import router as dashboard_router
+
 
 
 # =========================================================
@@ -51,15 +51,23 @@ app.add_middleware(
 # =========================================================
 
 app.include_router(auth_router)
+
 app.include_router(courses_router)
+
 app.include_router(modules_router)
+
 app.include_router(topics_router)
+
 app.include_router(materials_router)
+
 app.include_router(problems_router)
+
 app.include_router(progress_router)
+
 app.include_router(learning_router)
+
 app.include_router(enrollments_router)
-app.include_router(dashboard_router)
+
 
 
 # =========================================================

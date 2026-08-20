@@ -1,376 +1,434 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:8000";
 
 const Course = () => {
+
     const { courseId } = useParams();
 
     const [course, setCourse] = useState(null);
+    const [modules, setModules] = useState([]);
+
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    // =====================================================
+    // FETCH COURSE + MODULES
+    // =====================================================
 
     useEffect(() => {
-        // Temporary data
-        // Later we will connect this with the FastAPI backend
-        const demoCourse = {
-            id: courseId,
-            title: "Java Programming",
-            description:
-                "Learn Java programming from the basics to advanced concepts with practical examples and problem solving.",
-            instructor: "Campus Scrolls",
-            modules: 8,
-            topics: 42,
-            students: 1250,
-            progress: 35,
+
+        const fetchCourseData = async () => {
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                // -----------------------------------------
+                // GET COURSE
+                // -----------------------------------------
+
+                const courseResponse = await axios.get(
+                    `${API_URL}/courses/${courseId}`
+                );
+
+                setCourse(courseResponse.data);
+
+                // -----------------------------------------
+                // GET MODULES
+                // -----------------------------------------
+
+                const modulesResponse = await axios.get(
+                    `${API_URL}/modules/course/${courseId}`
+                );
+
+                setModules(modulesResponse.data);
+
+            } catch (err) {
+
+                console.error("Course error:", err);
+
+                if (err.response?.status === 404) {
+
+                    setError("Course not found.");
+
+                } else if (err.response?.status === 400) {
+
+                    setError("Invalid course ID.");
+
+                } else {
+
+                    setError(
+                        "Unable to load the course. Please try again."
+                    );
+                }
+
+            } finally {
+
+                setLoading(false);
+
+            }
         };
 
-        setTimeout(() => {
-            setCourse(demoCourse);
-            setLoading(false);
-        }, 500);
+        if (courseId) {
+            fetchCourseData();
+        }
+
     }, [courseId]);
 
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
     if (loading) {
+
         return (
-            <div style={styles.loadingContainer}>
-                <div style={styles.loader}></div>
-                <p>Loading course...</p>
+            <div className="flex min-h-screen items-center justify-center bg-slate-50">
+
+                <div className="text-center">
+
+                    <div
+                        className="
+                            mx-auto
+                            h-10
+                            w-10
+                            animate-spin
+                            rounded-full
+                            border-4
+                            border-slate-200
+                            border-t-blue-600
+                        "
+                    />
+
+                    <p className="mt-4 text-sm text-slate-500">
+                        Loading course...
+                    </p>
+
+                </div>
+
             </div>
         );
     }
 
+
+    // =====================================================
+    // ERROR
+    // =====================================================
+
+    if (error) {
+
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+
+                <div className="text-center">
+
+                    <h1 className="text-2xl font-bold text-slate-900">
+                        {error}
+                    </h1>
+
+                    <p className="mt-2 text-slate-500">
+                        Something went wrong while loading this course.
+                    </p>
+
+                    <Link
+                        to="/courses"
+                        className="
+                            mt-6
+                            inline-block
+                            rounded-xl
+                            bg-blue-600
+                            px-5
+                            py-3
+                            font-semibold
+                            text-white
+                            transition
+                            hover:bg-blue-700
+                        "
+                    >
+                        ← Back to Courses
+                    </Link>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    // =====================================================
+    // COURSE PAGE
+    // =====================================================
+
     return (
-        <div style={styles.page}>
 
-            {/* ================= NAVBAR ================= */}
+        <div className="min-h-screen bg-slate-50 text-slate-900">
 
-            <nav style={styles.navbar}>
-                <Link to="/" style={styles.logo}>
-                    Campus<span>Scrolls</span>
+            <main className="mx-auto max-w-5xl px-6 py-12">
+
+                {/* =========================================
+                    BACK
+                ========================================= */}
+
+                <Link
+                    to="/courses"
+                    className="
+                        text-sm
+                        font-medium
+                        text-blue-600
+                        transition
+                        hover:text-blue-700
+                    "
+                >
+                    ← Back to Courses
                 </Link>
 
-                <div style={styles.navLinks}>
-                    <Link to="/courses" style={styles.navLink}>
-                        Courses
-                    </Link>
 
-                    <Link to="/dashboard" style={styles.navLink}>
-                        Dashboard
-                    </Link>
+                {/* =========================================
+                    COURSE HEADER
+                ========================================= */}
 
-                    <Link to="/profile" style={styles.navLink}>
-                        Profile
-                    </Link>
-                </div>
-            </nav>
+                <section
+                    className="
+                        mt-6
+                        rounded-3xl
+                        border
+                        border-slate-200
+                        bg-white
+                        p-8
+                        shadow-sm
+                        md:p-10
+                    "
+                >
 
-            {/* ================= HERO ================= */}
+                    <p
+                        className="
+                            text-sm
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-blue-600
+                        "
+                    >
+                        Course
+                    </p>
 
-            <section style={styles.hero}>
 
-                <div style={styles.heroContent}>
-
-                    <div style={styles.badge}>
-                        📚 Course
-                    </div>
-
-                    <h1 style={styles.title}>
+                    <h1
+                        className="
+                            mt-3
+                            text-3xl
+                            font-bold
+                            text-slate-900
+                            md:text-4xl
+                        "
+                    >
                         {course.title}
                     </h1>
 
-                    <p style={styles.description}>
+
+                    <p
+                        className="
+                            mt-4
+                            max-w-3xl
+                            leading-7
+                            text-slate-600
+                        "
+                    >
                         {course.description}
                     </p>
 
-                    <div style={styles.stats}>
 
-                        <div style={styles.stat}>
-                            <strong>{course.modules}</strong>
-                            <span>Modules</span>
-                        </div>
+                    <div
+                        className="
+                            mt-6
+                            flex
+                            items-center
+                            gap-6
+                            text-sm
+                            text-slate-500
+                        "
+                    >
 
-                        <div style={styles.stat}>
-                            <strong>{course.topics}</strong>
-                            <span>Topics</span>
-                        </div>
-
-                        <div style={styles.stat}>
-                            <strong>{course.students}</strong>
-                            <span>Students</span>
-                        </div>
-
-                    </div>
-
-                    <div style={styles.buttons}>
-
-                        <Link
-                            to="/dashboard"
-                            style={styles.primaryButton}
-                        >
-                            Continue Learning →
-                        </Link>
-
-                        <Link
-                            to="/courses"
-                            style={styles.secondaryButton}
-                        >
-                            ← Back to Courses
-                        </Link>
+                        <span>
+                            📚 {modules.length} Modules
+                        </span>
 
                     </div>
 
-                </div>
+                </section>
 
-            </section>
 
-            {/* ================= COURSE CONTENT ================= */}
+                {/* =========================================
+                    MODULES
+                ========================================= */}
 
-            <section style={styles.content}>
+                <section className="mt-10">
 
-                <div style={styles.contentHeader}>
-                    <h2>Course Modules</h2>
+                    <div className="mb-6">
 
-                    <p>
-                        Follow the modules step by step and build your
-                        programming skills.
-                    </p>
-                </div>
+                        <h2
+                            className="
+                                text-2xl
+                                font-bold
+                                text-slate-900
+                            "
+                        >
+                            Course Modules
+                        </h2>
 
-                <div style={styles.moduleGrid}>
+                        <p className="mt-2 text-slate-500">
+                            Select a module to start learning.
+                        </p>
 
-                    {[1, 2, 3, 4, 5, 6].map((module) => (
+                    </div>
 
-                        <Link
-                            key={module}
-                            to={`/modules/${module}`}
-                            style={styles.moduleCard}
+
+                    {/* =====================================
+                        NO MODULES
+                    ===================================== */}
+
+                    {modules.length === 0 ? (
+
+                        <div
+                            className="
+                                rounded-2xl
+                                border
+                                border-slate-200
+                                bg-white
+                                p-10
+                                text-center
+                            "
                         >
 
-                            <div style={styles.moduleNumber}>
-                                {module}
-                            </div>
+                            <p className="text-slate-500">
+                                No modules available for this course yet.
+                            </p>
 
-                            <div>
-                                <h3>
-                                    Module {module}
-                                </h3>
+                        </div>
 
-                                <p>
-                                    Learn important Java concepts
-                                    and practice with examples.
-                                </p>
+                    ) : (
 
-                                <span style={styles.learnMore}>
-                                    Start Learning →
-                                </span>
-                            </div>
+                        <div className="space-y-4">
 
-                        </Link>
+                            {modules.map((module, index) => (
 
-                    ))}
+                                <Link
+                                    key={module.id}
+                                    to={`/modules/${module.id}`}
+                                    className="
+                                        group
+                                        flex
+                                        items-center
+                                        gap-5
+                                        rounded-2xl
+                                        border
+                                        border-slate-200
+                                        bg-white
+                                        p-6
+                                        no-underline
+                                        transition
+                                        hover:-translate-y-0.5
+                                        hover:border-blue-300
+                                        hover:shadow-md
+                                    "
+                                >
 
-                </div>
+                                    {/* NUMBER */}
 
-            </section>
+                                    <div
+                                        className="
+                                            flex
+                                            h-12
+                                            w-12
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-xl
+                                            bg-blue-50
+                                            font-bold
+                                            text-blue-600
+                                            transition
+                                            group-hover:bg-blue-600
+                                            group-hover:text-white
+                                        "
+                                    >
+                                        {index + 1}
+                                    </div>
 
-            {/* ================= FOOTER ================= */}
 
-            <footer style={styles.footer}>
-                <p>
-                    © 2026 Campus Scrolls. Learn. Build. Grow.
-                </p>
-            </footer>
+                                    {/* CONTENT */}
+
+                                    <div className="flex-1">
+
+                                        <p
+                                            className="
+                                                text-xs
+                                                font-semibold
+                                                uppercase
+                                                tracking-wide
+                                                text-blue-600
+                                            "
+                                        >
+                                            Module {module.order}
+                                        </p>
+
+                                        <h3
+                                            className="
+                                                mt-1
+                                                text-lg
+                                                font-semibold
+                                                text-slate-900
+                                            "
+                                        >
+                                            {module.title}
+                                        </h3>
+
+                                        <p
+                                            className="
+                                                mt-1
+                                                text-sm
+                                                leading-6
+                                                text-slate-500
+                                            "
+                                        >
+                                            {module.description}
+                                        </p>
+
+                                    </div>
+
+
+                                    {/* ARROW */}
+
+                                    <span
+                                        className="
+                                            text-xl
+                                            text-slate-400
+                                            transition
+                                            group-hover:translate-x-1
+                                            group-hover:text-blue-600
+                                        "
+                                    >
+                                        →
+                                    </span>
+
+                                </Link>
+
+                            ))}
+
+                        </div>
+
+                    )}
+
+                </section>
+
+            </main>
 
         </div>
     );
-};
-
-const styles = {
-
-    page: {
-        minHeight: "100vh",
-        background: "#f8fafc",
-        color: "#0f172a",
-        fontFamily:
-            "Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-    },
-
-    navbar: {
-        height: "70px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 7%",
-        background: "#ffffff",
-        borderBottom: "1px solid #e2e8f0",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-    },
-
-    logo: {
-        fontSize: "24px",
-        fontWeight: "800",
-        textDecoration: "none",
-        color: "#0f172a",
-    },
-
-    navLinks: {
-        display: "flex",
-        gap: "30px",
-    },
-
-    navLink: {
-        textDecoration: "none",
-        color: "#475569",
-        fontWeight: "500",
-        transition: "0.3s",
-    },
-
-    hero: {
-        background:
-            "linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%)",
-        color: "white",
-        padding: "80px 7%",
-    },
-
-    heroContent: {
-        maxWidth: "900px",
-        margin: "auto",
-    },
-
-    badge: {
-        display: "inline-block",
-        padding: "8px 16px",
-        borderRadius: "30px",
-        background: "rgba(255,255,255,0.15)",
-        marginBottom: "20px",
-        fontSize: "14px",
-    },
-
-    title: {
-        fontSize: "clamp(40px, 6vw, 70px)",
-        margin: "0 0 20px",
-        fontWeight: "800",
-        lineHeight: "1.05",
-    },
-
-    description: {
-        fontSize: "18px",
-        lineHeight: "1.7",
-        color: "#dbeafe",
-        maxWidth: "700px",
-    },
-
-    stats: {
-        display: "flex",
-        gap: "50px",
-        marginTop: "35px",
-        flexWrap: "wrap",
-    },
-
-    stat: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-    },
-
-    buttons: {
-        display: "flex",
-        gap: "15px",
-        marginTop: "40px",
-        flexWrap: "wrap",
-    },
-
-    primaryButton: {
-        textDecoration: "none",
-        background: "#ffffff",
-        color: "#1d4ed8",
-        padding: "14px 24px",
-        borderRadius: "10px",
-        fontWeight: "700",
-        transition: "0.3s",
-    },
-
-    secondaryButton: {
-        textDecoration: "none",
-        border: "1px solid rgba(255,255,255,0.4)",
-        color: "white",
-        padding: "14px 24px",
-        borderRadius: "10px",
-        fontWeight: "600",
-    },
-
-    content: {
-        maxWidth: "1100px",
-        margin: "auto",
-        padding: "70px 7%",
-    },
-
-    contentHeader: {
-        marginBottom: "35px",
-    },
-
-    moduleGrid: {
-        display: "grid",
-        gridTemplateColumns:
-            "repeat(auto-fit, minmax(280px, 1fr))",
-        gap: "20px",
-    },
-
-    moduleCard: {
-        display: "flex",
-        gap: "20px",
-        padding: "25px",
-        background: "white",
-        borderRadius: "16px",
-        border: "1px solid #e2e8f0",
-        textDecoration: "none",
-        color: "#0f172a",
-        transition: "0.3s",
-        boxShadow: "0 5px 20px rgba(15,23,42,0.05)",
-    },
-
-    moduleNumber: {
-        minWidth: "45px",
-        height: "45px",
-        borderRadius: "12px",
-        background: "#dbeafe",
-        color: "#1d4ed8",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: "800",
-        fontSize: "18px",
-    },
-
-    learnMore: {
-        color: "#2563eb",
-        fontWeight: "600",
-        fontSize: "14px",
-    },
-
-    footer: {
-        textAlign: "center",
-        padding: "30px",
-        background: "#0f172a",
-        color: "#94a3b8",
-    },
-
-    loadingContainer: {
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    loader: {
-        width: "40px",
-        height: "40px",
-        border: "4px solid #e2e8f0",
-        borderTop: "4px solid #2563eb",
-        borderRadius: "50%",
-        marginBottom: "15px",
-    },
 };
 
 export default Course;

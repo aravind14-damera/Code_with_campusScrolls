@@ -31,14 +31,13 @@ const Login = () => {
         setLoading(true);
 
         try {
-
             await login(
                 formData.email,
                 formData.password
             );
 
-            // Login successful
-            navigate("/dashboard");
+            // After successful login go directly to Courses
+            navigate("/courses");
 
         } catch (error) {
 
@@ -67,10 +66,6 @@ const Login = () => {
     return (
         <div className="min-h-screen bg-white text-slate-900">
 
-            {/* =========================
-                LOGIN SECTION
-            ========================= */}
-
             <div className="
                 flex
                 min-h-[calc(100vh-80px)]
@@ -82,9 +77,7 @@ const Login = () => {
 
                 <div className="w-full max-w-md">
 
-                    {/* =========================
-                        LOGO
-                    ========================= */}
+                    {/* LOGO */}
 
                     <Link
                         to="/"
@@ -107,9 +100,7 @@ const Login = () => {
                     </Link>
 
 
-                    {/* =========================
-                        LOGIN CARD
-                    ========================= */}
+                    {/* LOGIN CARD */}
 
                     <div className="
                         rounded-3xl
@@ -124,9 +115,7 @@ const Login = () => {
                         hover:shadow-2xl
                     ">
 
-                        {/* =========================
-                            HEADER
-                        ========================= */}
+                        {/* HEADER */}
 
                         <div className="mb-8 text-center">
 
@@ -148,9 +137,7 @@ const Login = () => {
                         </div>
 
 
-                        {/* =========================
-                            ERROR MESSAGE
-                        ========================= */}
+                        {/* ERROR */}
 
                         {error && (
 
@@ -171,9 +158,7 @@ const Login = () => {
                         )}
 
 
-                        {/* =========================
-                            FORM
-                        ========================= */}
+                        {/* FORM */}
 
                         <form
                             onSubmit={handleSubmit}
@@ -299,20 +284,16 @@ const Login = () => {
                                     disabled:hover:translate-y-0
                                 "
                             >
-
                                 {loading
                                     ? "Logging in..."
                                     : "Login"
                                 }
-
                             </button>
 
                         </form>
 
 
-                        {/* =========================
-                            SIGNUP
-                        ========================= */}
+                        {/* SIGNUP */}
 
                         <p className="
                             mt-6
@@ -343,32 +324,6 @@ const Login = () => {
                 </div>
 
             </div>
-
-
-            {/* =========================
-                FOOTER
-            ========================= */}
-
-            <footer className="
-                border-t
-                border-slate-200
-                bg-white
-                py-6
-            ">
-
-                <p className="
-                    text-center
-                    text-sm
-                    text-slate-500
-                ">
-                    © 2026{" "}
-                    <span className="font-semibold text-slate-700">
-                        CampusScrolls
-                    </span>
-                    . All rights reserved.
-                </p>
-
-            </footer>
 
         </div>
     );

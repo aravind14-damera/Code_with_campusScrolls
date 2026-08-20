@@ -3,8 +3,11 @@ from datetime import datetime, timezone
 
 import cloudinary
 import cloudinary.uploader
+
 from bson import ObjectId
+
 from dotenv import load_dotenv
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -41,7 +44,7 @@ router = APIRouter(
 
 
 # =========================================================
-# CREATE / UPLOAD MATERIAL - ADMIN ONLY
+# CREATE / UPLOAD MATERIAL
 # =========================================================
 
 @router.post(
@@ -55,9 +58,11 @@ async def upload_material(
     current_admin=Depends(get_current_admin)
 ):
 
-    # Validate topic ID
-    try:
+    # -----------------------------------------------------
+    # Validate Topic ID
+    # -----------------------------------------------------
 
+    try:
         topic_object_id = ObjectId(topic_id)
 
     except Exception:
@@ -67,7 +72,11 @@ async def upload_material(
             detail="Invalid topic ID"
         )
 
-    # Check topic exists
+
+    # -----------------------------------------------------
+    # Check Topic
+    # -----------------------------------------------------
+
     topic = db.topics.find_one({
         "_id": topic_object_id,
         "is_published": True
@@ -80,7 +89,11 @@ async def upload_material(
             detail="Topic not found"
         )
 
-    # Check PDF
+
+    # -----------------------------------------------------
+    # Validate PDF
+    # -----------------------------------------------------
+
     if file.content_type != "application/pdf":
 
         raise HTTPException(
@@ -88,7 +101,11 @@ async def upload_material(
             detail="Only PDF files are allowed"
         )
 
+
+    # -----------------------------------------------------
     # Upload PDF to Cloudinary
+    # -----------------------------------------------------
+
     try:
 
         result = cloudinary.uploader.upload(
@@ -107,37 +124,59 @@ async def upload_material(
             detail=f"Cloudinary upload failed: {str(e)}"
         )
 
-    # Save material in MongoDB
+
+    # -----------------------------------------------------
+    # Save Material
+    # -----------------------------------------------------
+
     material = {
+
         "topic_id": topic_object_id,
+
         "title": title,
+
         "file_url": result["secure_url"],
+
         "public_id": result["public_id"],
+
         "is_published": True,
+
         "created_at": datetime.now(timezone.utc),
+
         "updated_at": datetime.now(timezone.utc)
     }
 
-    material_result = db.materials.insert_one(material)
+
+    result_db = db.materials.insert_one(material)
+
 
     return {
+
         "message": "PDF uploaded successfully",
-        "material_id": str(material_result.inserted_id),
+
+        "material_id": str(result_db.inserted_id),
+
         "topic_id": topic_id,
+
         "title": title,
+
         "file_url": result["secure_url"],
+
         "public_id": result["public_id"]
     }
 
 
 # =========================================================
-# GET ALL MATERIALS FOR A TOPIC - PUBLIC
+# GET ALL MATERIALS FOR A TOPIC
 # =========================================================
 
 @router.get("/topic/{topic_id}")
 def get_topic_materials(topic_id: str):
 
-    # Validate topic ID
+    # -----------------------------------------------------
+    # Validate Topic ID
+    # -----------------------------------------------------
+
     try:
 
         topic_object_id = ObjectId(topic_id)
@@ -149,7 +188,11 @@ def get_topic_materials(topic_id: str):
             detail="Invalid topic ID"
         )
 
-    # Check topic
+
+    # -----------------------------------------------------
+    # Check Topic
+    # -----------------------------------------------------
+
     topic = db.topics.find_one({
         "_id": topic_object_id,
         "is_published": True
@@ -162,6 +205,11 @@ def get_topic_materials(topic_id: str):
             detail="Topic not found"
         )
 
+
+    # -----------------------------------------------------
+    # Get Materials
+    # -----------------------------------------------------
+
     materials = list(
         db.materials.find({
             "topic_id": topic_object_id,
@@ -169,27 +217,41 @@ def get_topic_materials(topic_id: str):
         }).sort("created_at", 1)
     )
 
+
+    # -----------------------------------------------------
+    # Response
+    # -----------------------------------------------------
+
     return [
+
         {
             "id": str(material["_id"]),
+
             "topic_id": str(material["topic_id"]),
+
             "title": material["title"],
+
             "file_url": material["file_url"],
+
             "public_id": material["public_id"],
-            "is_published": material["is_published"]
+
+            "is_published": material.get(
+                "is_published",
+                True
+            )
         }
+
         for material in materials
     ]
 
 
 # =========================================================
-# GET ONE MATERIAL - PUBLIC
+# GET ONE MATERIAL
 # =========================================================
 
 @router.get("/{material_id}")
 def get_material(material_id: str):
 
-    # Validate material ID
     try:
 
         object_id = ObjectId(material_id)
@@ -201,10 +263,12 @@ def get_material(material_id: str):
             detail="Invalid material ID"
         )
 
+
     material = db.materials.find_one({
         "_id": object_id,
         "is_published": True
     })
+
 
     if not material:
 
@@ -213,18 +277,28 @@ def get_material(material_id: str):
             detail="Material not found"
         )
 
+
     return {
+
         "id": str(material["_id"]),
+
         "topic_id": str(material["topic_id"]),
+
         "title": material["title"],
+
         "file_url": material["file_url"],
+
         "public_id": material["public_id"],
-        "is_published": material["is_published"]
+
+        "is_published": material.get(
+            "is_published",
+            True
+        )
     }
 
 
 # =========================================================
-# UPDATE MATERIAL - ADMIN ONLY
+# UPDATE MATERIAL
 # =========================================================
 
 @router.put("/{material_id}")
@@ -234,7 +308,6 @@ def update_material(
     current_admin=Depends(get_current_admin)
 ):
 
-    # Validate material ID
     try:
 
         object_id = ObjectId(material_id)
@@ -246,19 +319,24 @@ def update_material(
             detail="Invalid material ID"
         )
 
-    # Update only title
+
     result = db.materials.update_one(
+
         {
             "_id": object_id,
             "is_published": True
         },
+
         {
             "$set": {
+
                 "title": title,
+
                 "updated_at": datetime.now(timezone.utc)
             }
         }
     )
+
 
     if result.matched_count == 0:
 
@@ -267,15 +345,19 @@ def update_material(
             detail="Material not found"
         )
 
+
     return {
+
         "message": "Material updated successfully",
+
         "material_id": material_id,
+
         "title": title
     }
 
 
 # =========================================================
-# DELETE MATERIAL - ADMIN ONLY
+# DELETE MATERIAL
 # =========================================================
 
 @router.delete("/{material_id}")
@@ -284,7 +366,6 @@ def delete_material(
     current_admin=Depends(get_current_admin)
 ):
 
-    # Validate material ID
     try:
 
         object_id = ObjectId(material_id)
@@ -296,11 +377,12 @@ def delete_material(
             detail="Invalid material ID"
         )
 
-    # Find material
+
     material = db.materials.find_one({
         "_id": object_id,
         "is_published": True
     })
+
 
     if not material:
 
@@ -309,27 +391,27 @@ def delete_material(
             detail="Material not found"
         )
 
-    # Soft delete in MongoDB
-    result = db.materials.update_one(
+
+    db.materials.update_one(
+
         {
             "_id": object_id
         },
+
         {
             "$set": {
+
                 "is_published": False,
+
                 "updated_at": datetime.now(timezone.utc)
             }
         }
     )
 
-    if result.matched_count == 0:
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Material not found"
-        )
 
     return {
+
         "message": "Material deleted successfully",
+
         "material_id": material_id
     }

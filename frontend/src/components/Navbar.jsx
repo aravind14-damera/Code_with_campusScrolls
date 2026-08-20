@@ -1,108 +1,112 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const Navbar = () => {
-    const location = useLocation();
 
-    const isActive = (path) => {
-        return location.pathname === path;
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const { isAuthenticated, logout } = useContext(AuthContext);
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
     };
 
+    // Public pages
+    const publicPages = ["/", "/login", "/signup"];
+
+    const isPublicPage = publicPages.includes(location.pathname);
+
     return (
-        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <nav className="w-full border-b border-slate-200 bg-white">
 
-            <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
+            <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
 
-                {/* LOGO */}
+                {/* Logo */}
                 <Link
                     to="/"
-                    className="group flex items-center"
+                    className="text-3xl font-bold"
                 >
-                    <span className="text-2xl font-extrabold tracking-tight text-slate-900">
+                    <span className="text-slate-900">
                         Campus
                     </span>
 
-                    <span className="text-2xl font-extrabold tracking-tight text-blue-600 transition-colors duration-300 group-hover:text-blue-700">
+                    <span className="text-blue-600">
                         Scrolls
                     </span>
                 </Link>
 
 
-                {/* NAVIGATION */}
-                <nav className="flex items-center gap-2">
+                {/* ========================= */}
+                {/* BEFORE LOGIN */}
+                {/* ========================= */}
 
-                    {/* HOME */}
-                    <Link
-                        to="/"
-                        className={`
-                            rounded-lg
-                            px-4
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            transition-all
-                            duration-200
-                            ${
-                                isActive("/")
-                                    ? "bg-blue-50 text-blue-600"
-                                    : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                            }
-                        `}
-                    >
-                        Home
-                    </Link>
+                {(!isAuthenticated || isPublicPage) && (
 
+                    <div className="flex items-center gap-8">
 
-                    {/* LOGIN */}
-                    <Link
-                        to="/login"
-                        className={`
-                            rounded-lg
-                            px-4
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            transition-all
-                            duration-200
-                            ${
-                                isActive("/login")
-                                    ? "bg-blue-50 text-blue-600"
-                                    : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
-                            }
-                        `}
-                    >
-                        Login
-                    </Link>
+                        <Link
+                            to="/"
+                            className="text-slate-700 hover:text-blue-600"
+                        >
+                            Home
+                        </Link>
+
+                        <Link
+                            to="/login"
+                            className="text-slate-700 hover:text-blue-600"
+                        >
+                            Login
+                        </Link>
+
+                        <Link
+                            to="/signup"
+                            className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
+                        >
+                            Sign Up
+                        </Link>
+
+                    </div>
+                )}
 
 
-                    {/* SIGN UP */}
-                    <Link
-                        to="/signup"
-                        className="
-                            ml-2
-                            rounded-xl
-                            bg-blue-600
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            text-white
-                            shadow-sm
-                            transition-all
-                            duration-300
-                            hover:-translate-y-0.5
-                            hover:bg-blue-700
-                            hover:shadow-lg
-                            hover:shadow-blue-100
-                        "
-                    >
-                        Sign Up
-                    </Link>
+                {/* ========================= */}
+                {/* AFTER LOGIN */}
+                {/* ========================= */}
 
-                </nav>
+                {isAuthenticated && !isPublicPage && (
+
+                    <div className="flex items-center gap-8">
+
+                        <Link
+                            to="/courses"
+                            className="text-slate-700 hover:text-blue-600"
+                        >
+                            Courses
+                        </Link>
+
+                        <Link
+                            to="/profile"
+                            className="text-slate-700 hover:text-blue-600"
+                        >
+                            Profile
+                        </Link>
+
+                        <button
+                            onClick={handleLogout}
+                            className="rounded-lg border border-red-200 px-5 py-3 text-red-600 hover:bg-red-50"
+                        >
+                            Logout
+                        </button>
+
+                    </div>
+                )}
 
             </div>
 
-        </header>
+        </nav>
     );
 };
 

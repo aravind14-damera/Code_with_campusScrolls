@@ -84,10 +84,6 @@ def create_access_token(user_id: str) -> str:
 )
 def signup(data: SignupRequest):
 
-    # -----------------------------------------------------
-    # Check if email already exists
-    # -----------------------------------------------------
-
     existing_user = db.users.find_one({
         "email": data.email
     })
@@ -99,32 +95,17 @@ def signup(data: SignupRequest):
             detail="Email already registered"
         )
 
-    # -----------------------------------------------------
-    # Hash password
-    # -----------------------------------------------------
-
     hashed_password = password_hash.hash(
         data.password
     )
-
-    # -----------------------------------------------------
-    # Create user
-    # -----------------------------------------------------
 
     user = {
         "name": data.name,
         "email": data.email,
         "password_hash": hashed_password,
-
-        # Every new user is a student
         "role": "student",
-
         "created_at": datetime.now(timezone.utc)
     }
-
-    # -----------------------------------------------------
-    # Insert into MongoDB
-    # -----------------------------------------------------
 
     result = db.users.insert_one(user)
 
@@ -144,10 +125,6 @@ def signup(data: SignupRequest):
 @router.post("/login")
 def login(data: LoginRequest):
 
-    # -----------------------------------------------------
-    # Find user
-    # -----------------------------------------------------
-
     user = db.users.find_one({
         "email": data.email
     })
@@ -158,10 +135,6 @@ def login(data: LoginRequest):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
-
-    # -----------------------------------------------------
-    # Verify password
-    # -----------------------------------------------------
 
     password_valid = password_hash.verify(
         data.password,
@@ -175,20 +148,10 @@ def login(data: LoginRequest):
             detail="Invalid email or password"
         )
 
-    # -----------------------------------------------------
-    # Get role
-    # -----------------------------------------------------
-
-    # Existing users created before role was added
-    # will automatically be treated as students.
     role = user.get(
         "role",
         "student"
     )
-
-    # -----------------------------------------------------
-    # Create JWT
-    # -----------------------------------------------------
 
     access_token = create_access_token(
         str(user["_id"])
@@ -226,5 +189,51 @@ def get_me(
         "role": current_user.get(
             "role",
             "student"
+        ),
+        "created_at": current_user.get(
+            "created_at"
         )
+    }
+
+
+# =========================================================
+# DELETE MY ACCOUNT PERMANENTLY
+# =========================================================
+
+@router.delete("/me")
+def delete_my_account(
+    current_user=Depends(get_current_user)
+):
+
+    user_id = current_user["_id"]
+
+    # -----------------------------------------------------
+    # Delete user account
+    # -----------------------------------------------------
+
+    result = db.users.delete_one({
+        "_id": user_id
+    })
+
+    if result.deleted_count == 0:
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User account not found"
+        )
+
+    # -----------------------------------------------------
+    # Delete related data
+    # -----------------------------------------------------
+
+    db.enrollments.delete_many({
+        "user_id": user_id
+    })
+
+    db.progress.delete_many({
+        "user_id": user_id
+    })
+
+    return {
+        "message": "Account deleted permanently"
     }

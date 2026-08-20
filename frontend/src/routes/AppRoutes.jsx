@@ -7,7 +7,6 @@ import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
-import Dashboard from "../pages/Dashboard";
 import Courses from "../pages/Courses";
 import Course from "../pages/Course";
 import Module from "../pages/Module";
@@ -32,19 +31,22 @@ import ManageUsers from "../pages/admin/ManageUsers";
 
 import ProtectedRoute from "./ProtectedRoute";
 
-
 const AppRoutes = () => {
     return (
         <Routes>
 
             {/* =========================
-                PUBLIC ROUTES
+                HOME
             ========================= */}
 
             <Route
                 path="/"
                 element={<Home />}
             />
+
+            {/* =========================
+                AUTH
+            ========================= */}
 
             <Route
                 path="/login"
@@ -56,64 +58,50 @@ const AppRoutes = () => {
                 element={<Signup />}
             />
 
-
             {/* =========================
-                STUDENT ROUTES
+                COURSES
             ========================= */}
 
             <Route
                 path="/courses"
-                element={
-                    <ProtectedRoute>
-                        <Courses />
-                    </ProtectedRoute>
-                }
+                element={<Courses />}
             />
 
             <Route
                 path="/courses/:courseId"
-                element={
-                    <ProtectedRoute>
-                        <Course />
-                    </ProtectedRoute>
-                }
+                element={<Course />}
             />
+
+            {/* =========================
+                MODULES
+            ========================= */}
 
             <Route
                 path="/modules/:moduleId"
-                element={
-                    <ProtectedRoute>
-                        <Module />
-                    </ProtectedRoute>
-                }
+                element={<Module />}
             />
+
+            {/* =========================
+                TOPICS
+            ========================= */}
 
             <Route
                 path="/topics/:topicId"
-                element={
-                    <ProtectedRoute>
-                        <Topic />
-                    </ProtectedRoute>
-                }
+                element={<Topic />}
             />
+
+            {/* =========================
+                PROBLEMS
+            ========================= */}
 
             <Route
                 path="/problems/:problemId"
-                element={
-                    <ProtectedRoute>
-                        <Problem />
-                    </ProtectedRoute>
-                }
+                element={<Problem />}
             />
 
-            <Route
-                path="/dashboard"
-                element={
-                    <ProtectedRoute>
-                        <Dashboard />
-                    </ProtectedRoute>
-                }
-            />
+            {/* =========================
+                PROFILE
+            ========================= */}
 
             <Route
                 path="/profile"
@@ -124,9 +112,8 @@ const AppRoutes = () => {
                 }
             />
 
-
             {/* =========================
-                ADMIN ROUTES
+                ADMIN
             ========================= */}
 
             <Route
@@ -183,7 +170,6 @@ const AppRoutes = () => {
                 }
             />
 
-
             {/* =========================
                 404
             ========================= */}
@@ -191,13 +177,13 @@ const AppRoutes = () => {
             <Route
                 path="*"
                 element={
-                    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                    <div className="flex min-h-[60vh] items-center justify-center px-6">
                         <div className="text-center">
-                            <h1 className="text-6xl font-bold text-slate-900">
+                            <h1 className="text-4xl font-bold text-slate-900">
                                 404
                             </h1>
 
-                            <p className="mt-4 text-lg text-slate-500">
+                            <p className="mt-2 text-slate-500">
                                 Page not found.
                             </p>
                         </div>

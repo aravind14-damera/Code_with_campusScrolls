@@ -1,15 +1,4 @@
-from typing import List
-
 from pydantic import BaseModel, Field
-
-
-class ProblemExample(BaseModel):
-
-    input: str
-
-    output: str
-
-    explanation: str | None = None
 
 
 class ProblemCreate(BaseModel):
@@ -33,13 +22,28 @@ class ProblemCreate(BaseModel):
         pattern="^(Easy|Medium|Hard)$"
     )
 
-    examples: List[ProblemExample] = []
-
-    constraints: List[str] = []
-
-    starter_code: str = ""
-
     order: int = Field(
         ...,
         ge=1
     )
+
+
+class ProblemResponse(BaseModel):
+
+    id: str
+
+    topic_id: str
+
+    title: str
+
+    description: str
+
+    difficulty: str
+
+    pdf_url: str | None = None
+
+    pdf_public_id: str | None = None
+
+    order: int
+
+    is_published: bool
