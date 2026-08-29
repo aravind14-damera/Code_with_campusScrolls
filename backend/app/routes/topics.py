@@ -27,41 +27,49 @@ def create_topic(
     current_admin=Depends(get_current_admin)
 ):
 
+    # -----------------------------------------------------
     # Validate module ID
-    try:
+    # -----------------------------------------------------
 
+    try:
         module_id = ObjectId(data.module_id)
 
     except Exception:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid module ID"
         )
 
+    # -----------------------------------------------------
     # Check module
+    # -----------------------------------------------------
+
     module = db.modules.find_one({
         "_id": module_id,
         "is_published": True
     })
 
     if not module:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Module not found"
         )
 
+    # -----------------------------------------------------
     # Create topic
+    # -----------------------------------------------------
+
+    now = datetime.now(timezone.utc)
+
     topic = {
         "module_id": module_id,
-        "title": data.title,
-        "description": data.description,
+        "title": data.title.strip(),
+        "description": data.description.strip(),
         "youtube_url": str(data.youtube_url),
         "order": data.order,
         "is_published": True,
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc)
+        "created_at": now,
+        "updated_at": now
     }
 
     result = db.topics.insert_one(topic)
@@ -84,32 +92,38 @@ def create_topic(
 @router.get("/module/{module_id}")
 def get_module_topics(module_id: str):
 
+    # -----------------------------------------------------
     # Validate module ID
-    try:
+    # -----------------------------------------------------
 
+    try:
         object_id = ObjectId(module_id)
 
     except Exception:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid module ID"
         )
 
+    # -----------------------------------------------------
     # Check module
+    # -----------------------------------------------------
+
     module = db.modules.find_one({
         "_id": object_id,
         "is_published": True
     })
 
     if not module:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Module not found"
         )
 
+    # -----------------------------------------------------
     # Get topics
+    # -----------------------------------------------------
+
     topics = list(
         db.topics.find({
             "module_id": object_id,
@@ -138,17 +152,22 @@ def get_module_topics(module_id: str):
 @router.get("/{topic_id}")
 def get_topic(topic_id: str):
 
+    # -----------------------------------------------------
     # Validate topic ID
-    try:
+    # -----------------------------------------------------
 
+    try:
         object_id = ObjectId(topic_id)
 
     except Exception:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid topic ID"
         )
+
+    # -----------------------------------------------------
+    # Find topic
+    # -----------------------------------------------------
 
     topic = db.topics.find_one({
         "_id": object_id,
@@ -156,7 +175,6 @@ def get_topic(topic_id: str):
     })
 
     if not topic:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Topic not found"
@@ -184,44 +202,67 @@ def update_topic(
     current_admin=Depends(get_current_admin)
 ):
 
+    # -----------------------------------------------------
     # Validate topic ID
-    try:
+    # -----------------------------------------------------
 
+    try:
         object_id = ObjectId(topic_id)
 
     except Exception:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid topic ID"
         )
 
+    # -----------------------------------------------------
     # Validate module ID
-    try:
+    # -----------------------------------------------------
 
+    try:
         module_id = ObjectId(data.module_id)
 
     except Exception:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid module ID"
         )
 
+    # -----------------------------------------------------
     # Check module
+    # -----------------------------------------------------
+
     module = db.modules.find_one({
         "_id": module_id,
         "is_published": True
     })
 
     if not module:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Module not found"
         )
 
+    # -----------------------------------------------------
+    # Check topic
+    # -----------------------------------------------------
+
+    existing_topic = db.topics.find_one({
+        "_id": object_id
+    })
+
+    if not existing_topic:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Topic not found"
+        )
+
+    # -----------------------------------------------------
     # Update topic
+    # -----------------------------------------------------
+
+    now = datetime.now(timezone.utc)
+
     result = db.topics.update_one(
         {
             "_id": object_id
@@ -229,17 +270,16 @@ def update_topic(
         {
             "$set": {
                 "module_id": module_id,
-                "title": data.title,
-                "description": data.description,
+                "title": data.title.strip(),
+                "description": data.description.strip(),
                 "youtube_url": str(data.youtube_url),
                 "order": data.order,
-                "updated_at": datetime.now(timezone.utc)
+                "updated_at": now
             }
         }
     )
 
     if result.matched_count == 0:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Topic not found"
@@ -258,6 +298,7 @@ def update_topic(
 
 # =========================================================
 # DELETE TOPIC - ADMIN ONLY
+# PERMANENT DELETE
 # =========================================================
 
 @router.delete("/{topic_id}")
@@ -266,39 +307,52 @@ def delete_topic(
     current_admin=Depends(get_current_admin)
 ):
 
+    # -----------------------------------------------------
     # Validate topic ID
-    try:
+    # -----------------------------------------------------
 
+    try:
         object_id = ObjectId(topic_id)
 
     except Exception:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid topic ID"
         )
 
-    # Soft delete
-    result = db.topics.update_one(
-        {
-            "_id": object_id
-        },
-        {
-            "$set": {
-                "is_published": False,
-                "updated_at": datetime.now(timezone.utc)
-            }
-        }
-    )
+    # -----------------------------------------------------
+    # Check topic exists
+    # -----------------------------------------------------
 
-    if result.matched_count == 0:
+    topic = db.topics.find_one({
+        "_id": object_id
+    })
 
+    if not topic:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Topic not found"
         )
 
+    # -----------------------------------------------------
+    # PERMANENT DELETE
+    # -----------------------------------------------------
+
+    result = db.topics.delete_one({
+        "_id": object_id
+    })
+
+    if result.deleted_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Topic not found"
+        )
+
+    # -----------------------------------------------------
+    # Response
+    # -----------------------------------------------------
+
     return {
-        "message": "Topic deleted successfully",
+        "message": "Topic permanently deleted",
         "topic_id": topic_id
     }

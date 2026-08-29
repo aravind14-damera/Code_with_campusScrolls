@@ -1,51 +1,117 @@
+import { Navigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+
+import AuthContext from "../context/AuthContext";
+
 
 const ProtectedRoute = ({ children }) => {
 
     const {
-        isAuthenticated,
-        loading
+        user,
+        token,
+        loading,
     } = useContext(AuthContext);
 
-    // Checking authentication
+    const location = useLocation();
+
+
+    // =========================================================
+    // WAIT FOR AUTHENTICATION TO LOAD
+    // =========================================================
+
     if (loading) {
+
         return (
-            <div className="flex min-h-screen items-center justify-center bg-white">
+            <div className="min-h-screen flex items-center justify-center bg-white">
 
-                <div className="text-center">
-
-                    <div
-                        className="
-                            mx-auto
-                            h-10
-                            w-10
-                            animate-spin
-                            rounded-full
-                            border-4
-                            border-slate-200
-                            border-t-blue-600
-                        "
-                    />
-
-                    <p className="mt-4 text-sm text-slate-500">
-                        Checking authentication...
-                    </p>
-
-                </div>
+                <p className="text-slate-600">
+                    Loading...
+                </p>
 
             </div>
         );
+
     }
 
-    // Not logged in
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+
+    // =========================================================
+    // CHECK WHETHER THIS IS AN ADMIN ROUTE
+    // =========================================================
+
+    const isAdminRoute =
+        location.pathname.startsWith("/admin");
+
+
+    // =========================================================
+    // NOT AUTHENTICATED
+    // =========================================================
+
+    if (!token || !user) {
+
+        // -----------------------------------------------------
+        // ADMIN ROUTE
+        // -----------------------------------------------------
+
+        if (isAdminRoute) {
+
+            return (
+                <Navigate
+                    to="/admin/login"
+                    replace
+                    state={{
+                        from: location.pathname
+                    }}
+                />
+            );
+
+        }
+
+
+        // -----------------------------------------------------
+        // STUDENT ROUTE
+        // -----------------------------------------------------
+
+        return (
+            <Navigate
+                to="/login"
+                replace
+                state={{
+                    from: location.pathname
+                }}
+            />
+        );
+
     }
 
-    // Logged in
+
+    // =========================================================
+    // ADMIN ROUTE
+    // USER MUST BE ADMIN
+    // =========================================================
+
+    if (isAdminRoute) {
+
+        if (user.role !== "admin") {
+
+            return (
+                <Navigate
+                    to="/admin/login"
+                    replace
+                />
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // AUTHENTICATED
+    // =========================================================
+
     return children;
+
 };
+
 
 export default ProtectedRoute;

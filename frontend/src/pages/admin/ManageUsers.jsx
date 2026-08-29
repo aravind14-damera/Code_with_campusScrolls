@@ -1,285 +1,575 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const ManageUsers = () => {
-    const [users] = useState([
-        {
-            id: 1,
-            name: "Aravind",
-            email: "aravind@example.com",
-            role: "Student",
-            status: "Active",
-        },
-        {
-            id: 2,
-            name: "Rahul",
-            email: "rahul@example.com",
-            role: "Student",
-            status: "Active",
-        },
-        {
-            id: 3,
-            name: "Admin User",
-            email: "admin@example.com",
-            role: "Admin",
-            status: "Active",
-        },
-        {
-            id: 4,
-            name: "Kiran",
-            email: "kiran@example.com",
-            role: "Student",
-            status: "Inactive",
-        },
-    ]);
+
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    // =====================================================
+    // FETCH USERS
+    // =====================================================
+
+    const fetchUsers = async () => {
+
+        try {
+
+            setLoading(true);
+            setError("");
+
+            // Your login stores access_token
+            const token = localStorage.getItem("access_token");
+
+            if (!token) {
+                setError("Not authenticated. Please login again.");
+                setLoading(false);
+                return;
+            }
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/admin/users",
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail || "Failed to fetch users"
+                );
+            }
+
+            setUsers(data);
+
+        } catch (error) {
+
+            console.error("Error fetching users:", error);
+
+            setError(error.message);
+
+        } finally {
+
+            setLoading(false);
+        }
+    };
+
+
+    // =====================================================
+    // LOAD USERS
+    // =====================================================
+
+    useEffect(() => {
+
+        fetchUsers();
+
+    }, []);
+
+
+    // =====================================================
+    // STATISTICS
+    // =====================================================
+
+    const totalUsers = users.length;
+
+    const activeUsers = users.filter(
+        user => user.status === "Active"
+    ).length;
+
+    const adminUsers = users.filter(
+        user => user.role === "Admin"
+    ).length;
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+            <div className="min-h-screen bg-white p-8">
+
+                <div className="flex justify-center items-center min-h-[400px]">
+
+                    <div className="text-center">
+
+                        <div className="
+                            w-10 h-10
+                            border-4
+                            border-blue-200
+                            border-t-blue-600
+                            rounded-full
+                            animate-spin
+                            mx-auto
+                        "></div>
+
+                        <p className="mt-4 text-slate-500">
+                            Loading users...
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    // =====================================================
+    // PAGE
+    // =====================================================
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white p-8">
 
-            {/* Header */}
-            <div className="mb-10">
+        <div className="min-h-screen bg-white text-slate-900 p-8">
 
-                <p className="text-sm text-indigo-400 font-medium mb-2">
-                    ADMIN PANEL
-                </p>
+            {/* =================================================
+                HEADER
+            ================================================= */}
 
-                <h1 className="text-4xl font-bold">
-                    Manage Users
-                </h1>
+            <div className="
+                flex
+                flex-col
+                md:flex-row
+                md:items-center
+                md:justify-between
+                gap-4
+                mb-10
+            ">
 
-                <p className="text-slate-400 mt-2">
-                    View and manage users registered on the platform.
-                </p>
+                <div>
+
+                    <p className="
+                        text-sm
+                        text-blue-600
+                        font-medium
+                        mb-2
+                    ">
+                        ADMIN PANEL
+                    </p>
+
+                    <h1 className="
+                        text-4xl
+                        font-bold
+                    ">
+                        Manage Users
+                    </h1>
+
+                    <p className="
+                        text-slate-500
+                        mt-2
+                    ">
+                        View and manage users registered on the platform.
+                    </p>
+
+                </div>
 
             </div>
 
-            {/* Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-                <div
-                    className="
-                        bg-slate-900
-                        border border-slate-800
-                        rounded-2xl
-                        p-6
-                        hover:border-indigo-500/50
-                        transition
-                    "
-                >
-                    <p className="text-slate-400 text-sm">
+            {/* =================================================
+                ERROR
+            ================================================= */}
+
+            {error && (
+
+                <div className="
+                    mb-6
+                    p-4
+                    rounded-xl
+                    bg-red-50
+                    border
+                    border-red-200
+                    text-red-600
+                    flex
+                    items-center
+                    justify-between
+                ">
+
+                    <span>
+                        {error}
+                    </span>
+
+                    <button
+                        onClick={fetchUsers}
+                        className="
+                            font-medium
+                            underline
+                        "
+                    >
+                        Retry
+                    </button>
+
+                </div>
+
+            )}
+
+
+            {/* =================================================
+                STATISTICS
+            ================================================= */}
+
+            <div className="
+                grid
+                grid-cols-1
+                md:grid-cols-3
+                gap-6
+                mb-10
+            ">
+
+                {/* TOTAL USERS */}
+
+                <div className="
+                    bg-white
+                    border
+                    border-slate-200
+                    rounded-2xl
+                    p-6
+                    shadow-sm
+                ">
+
+                    <p className="text-slate-500 text-sm">
                         Total Users
                     </p>
 
-                    <h2 className="text-3xl font-bold mt-2">
-                        {users.length}
+                    <h2 className="
+                        text-3xl
+                        font-bold
+                        mt-2
+                    ">
+                        {totalUsers}
                     </h2>
+
                 </div>
 
-                <div
-                    className="
-                        bg-slate-900
-                        border border-slate-800
-                        rounded-2xl
-                        p-6
-                        hover:border-green-500/50
-                        transition
-                    "
-                >
-                    <p className="text-slate-400 text-sm">
+
+                {/* ACTIVE USERS */}
+
+                <div className="
+                    bg-white
+                    border
+                    border-slate-200
+                    rounded-2xl
+                    p-6
+                    shadow-sm
+                ">
+
+                    <p className="text-slate-500 text-sm">
                         Active Users
                     </p>
 
-                    <h2 className="text-3xl font-bold mt-2 text-green-400">
-                        {
-                            users.filter(
-                                user => user.status === "Active"
-                            ).length
-                        }
+                    <h2 className="
+                        text-3xl
+                        font-bold
+                        mt-2
+                        text-green-600
+                    ">
+                        {activeUsers}
                     </h2>
+
                 </div>
 
-                <div
-                    className="
-                        bg-slate-900
-                        border border-slate-800
-                        rounded-2xl
-                        p-6
-                        hover:border-purple-500/50
-                        transition
-                    "
-                >
-                    <p className="text-slate-400 text-sm">
+
+                {/* ADMIN USERS */}
+
+                <div className="
+                    bg-white
+                    border
+                    border-slate-200
+                    rounded-2xl
+                    p-6
+                    shadow-sm
+                ">
+
+                    <p className="text-slate-500 text-sm">
                         Administrators
                     </p>
 
-                    <h2 className="text-3xl font-bold mt-2 text-purple-400">
-                        {
-                            users.filter(
-                                user => user.role === "Admin"
-                            ).length
-                        }
+                    <h2 className="
+                        text-3xl
+                        font-bold
+                        mt-2
+                        text-purple-600
+                    ">
+                        {adminUsers}
                     </h2>
+
                 </div>
 
             </div>
 
-            {/* Users Table */}
-            <div
-                className="
-                    bg-slate-900
-                    border border-slate-800
-                    rounded-2xl
-                    overflow-hidden
-                "
-            >
 
-                <div className="p-6 border-b border-slate-800">
-                    <h2 className="text-xl font-semibold">
+            {/* =================================================
+                USERS
+            ================================================= */}
+
+            <div className="
+                bg-white
+                border
+                border-slate-200
+                rounded-2xl
+                overflow-hidden
+                shadow-sm
+            ">
+
+                {/* HEADER */}
+
+                <div className="
+                    p-6
+                    border-b
+                    border-slate-200
+                ">
+
+                    <h2 className="
+                        text-xl
+                        font-semibold
+                    ">
                         All Users
                     </h2>
+
+                    <p className="
+                        text-slate-500
+                        mt-1
+                    ">
+                        Manage registered platform users.
+                    </p>
+
                 </div>
 
-                <div className="overflow-x-auto">
 
-                    <table className="w-full text-left">
+                {/* EMPTY */}
 
-                        <thead className="bg-slate-800/50">
+                {users.length === 0 ? (
 
-                            <tr>
+                    <div className="
+                        p-12
+                        text-center
+                    ">
 
-                                <th className="px-6 py-4 text-sm text-slate-400">
-                                    User
-                                </th>
+                        <div className="
+                            w-16
+                            h-16
+                            rounded-full
+                            bg-slate-100
+                            flex
+                            items-center
+                            justify-center
+                            mx-auto
+                            text-2xl
+                        ">
+                            👤
+                        </div>
 
-                                <th className="px-6 py-4 text-sm text-slate-400">
-                                    Email
-                                </th>
+                        <h3 className="
+                            text-lg
+                            font-semibold
+                            mt-4
+                        ">
+                            No users found
+                        </h3>
 
-                                <th className="px-6 py-4 text-sm text-slate-400">
-                                    Role
-                                </th>
+                        <p className="
+                            text-slate-500
+                            mt-2
+                        ">
+                            No registered users are available.
+                        </p>
 
-                                <th className="px-6 py-4 text-sm text-slate-400">
-                                    Status
-                                </th>
+                    </div>
 
-                                <th className="px-6 py-4 text-sm text-slate-400">
-                                    Action
-                                </th>
+                ) : (
 
-                            </tr>
+                    <div className="overflow-x-auto">
 
-                        </thead>
+                        <table className="w-full text-left">
 
-                        <tbody className="divide-y divide-slate-800">
+                            {/* TABLE HEADER */}
 
-                            {users.map((user) => (
+                            <thead className="bg-slate-50">
 
-                                <tr
-                                    key={user.id}
-                                    className="
-                                        hover:bg-slate-800/40
-                                        transition
-                                    "
-                                >
+                                <tr>
 
-                                    {/* User */}
-                                    <td className="px-6 py-5">
+                                    <th className="
+                                        px-6
+                                        py-4
+                                        text-sm
+                                        font-medium
+                                        text-slate-500
+                                    ">
+                                        User
+                                    </th>
 
-                                        <div className="flex items-center gap-3">
+                                    <th className="
+                                        px-6
+                                        py-4
+                                        text-sm
+                                        font-medium
+                                        text-slate-500
+                                    ">
+                                        Email
+                                    </th>
 
-                                            <div
-                                                className="
-                                                    w-10 h-10
-                                                    rounded-full
-                                                    bg-indigo-500/20
-                                                    text-indigo-400
-                                                    flex items-center
-                                                    justify-center
-                                                    font-semibold
-                                                "
-                                            >
-                                                {user.name.charAt(0)}
-                                            </div>
+                                    <th className="
+                                        px-6
+                                        py-4
+                                        text-sm
+                                        font-medium
+                                        text-slate-500
+                                    ">
+                                        Role
+                                    </th>
 
-                                            <span className="font-medium">
-                                                {user.name}
-                                            </span>
-
-                                        </div>
-
-                                    </td>
-
-                                    {/* Email */}
-                                    <td className="px-6 py-5 text-slate-400">
-                                        {user.email}
-                                    </td>
-
-                                    {/* Role */}
-                                    <td className="px-6 py-5">
-
-                                        <span
-                                            className={`
-                                                px-3 py-1
-                                                rounded-full
-                                                text-xs
-                                                ${
-                                                    user.role === "Admin"
-                                                        ? "bg-purple-500/10 text-purple-400"
-                                                        : "bg-blue-500/10 text-blue-400"
-                                                }
-                                            `}
-                                        >
-                                            {user.role}
-                                        </span>
-
-                                    </td>
-
-                                    {/* Status */}
-                                    <td className="px-6 py-5">
-
-                                        <span
-                                            className={`
-                                                px-3 py-1
-                                                rounded-full
-                                                text-xs
-                                                ${
-                                                    user.status === "Active"
-                                                        ? "bg-green-500/10 text-green-400"
-                                                        : "bg-red-500/10 text-red-400"
-                                                }
-                                            `}
-                                        >
-                                            {user.status}
-                                        </span>
-
-                                    </td>
-
-                                    {/* Action */}
-                                    <td className="px-6 py-5">
-
-                                        <button
-                                            className="
-                                                px-4 py-2
-                                                rounded-lg
-                                                bg-slate-800
-                                                hover:bg-slate-700
-                                                transition
-                                            "
-                                        >
-                                            View
-                                        </button>
-
-                                    </td>
+                                    <th className="
+                                        px-6
+                                        py-4
+                                        text-sm
+                                        font-medium
+                                        text-slate-500
+                                    ">
+                                        Status
+                                    </th>
 
                                 </tr>
 
-                            ))}
+                            </thead>
 
-                        </tbody>
 
-                    </table>
+                            {/* TABLE BODY */}
 
-                </div>
+                            <tbody className="
+                                divide-y
+                                divide-slate-100
+                            ">
+
+                                {users.map((user) => (
+
+                                    <tr
+                                        key={user.id}
+                                        className="
+                                            hover:bg-slate-50
+                                            transition
+                                        "
+                                    >
+
+                                        {/* USER */}
+
+                                        <td className="
+                                            px-6
+                                            py-5
+                                        ">
+
+                                            <div className="
+                                                flex
+                                                items-center
+                                                gap-3
+                                            ">
+
+                                                <div className="
+                                                    w-10
+                                                    h-10
+                                                    rounded-full
+                                                    bg-blue-100
+                                                    text-blue-600
+                                                    flex
+                                                    items-center
+                                                    justify-center
+                                                    font-semibold
+                                                ">
+
+                                                    {user.name
+                                                        ?.charAt(0)
+                                                        ?.toUpperCase() || "U"}
+
+                                                </div>
+
+                                                <div>
+
+                                                    <p className="font-medium">
+                                                        {user.name}
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        {/* EMAIL */}
+
+                                        <td className="
+                                            px-6
+                                            py-5
+                                            text-slate-600
+                                        ">
+                                            {user.email}
+                                        </td>
+
+
+                                        {/* ROLE */}
+
+                                        <td className="px-6 py-5">
+
+                                            <span className={`
+                                                px-3
+                                                py-1
+                                                rounded-full
+                                                text-xs
+                                                font-medium
+
+                                                ${
+                                                    user.role === "Admin"
+                                                        ? "bg-purple-50 text-purple-600"
+                                                        : "bg-blue-50 text-blue-600"
+                                                }
+                                            `}>
+                                                {user.role}
+                                            </span>
+
+                                        </td>
+
+
+                                        {/* STATUS */}
+
+                                        <td className="px-6 py-5">
+
+                                            <span className={`
+                                                px-3
+                                                py-1
+                                                rounded-full
+                                                text-xs
+                                                font-medium
+
+                                                ${
+                                                    user.status === "Active"
+                                                        ? "bg-green-50 text-green-600"
+                                                        : "bg-red-50 text-red-600"
+                                                }
+                                            `}>
+                                                {user.status}
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                )}
 
             </div>
 

@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import client
 
+
+# =========================================================
+# STUDENT ROUTES
+# =========================================================
+
 from app.routes.auth import router as auth_router
 from app.routes.courses import router as courses_router
 from app.routes.modules import router as modules_router
@@ -13,6 +18,18 @@ from app.routes.progress import router as progress_router
 from app.routes.learning import router as learning_router
 from app.routes.enrollments import router as enrollments_router
 
+
+
+# =========================================================
+# ADMIN ROUTES
+# =========================================================
+
+from app.routes.admin_dashboard import router as admin_dashboard_router
+from app.routes.admin_courses import router as admin_courses_router
+from app.routes.admin_modules import router as admin_modules_router
+from app.routes import admin_topics
+from app.routes.admin_users import router as admin_users_router
+from app.routes.admin_problems import router as admin_problems_router
 
 
 # =========================================================
@@ -47,27 +64,30 @@ app.add_middleware(
 
 
 # =========================================================
-# ROUTES
+# STUDENT ROUTES
 # =========================================================
 
 app.include_router(auth_router)
-
 app.include_router(courses_router)
-
 app.include_router(modules_router)
-
 app.include_router(topics_router)
-
 app.include_router(materials_router)
-
 app.include_router(problems_router)
-
 app.include_router(progress_router)
-
 app.include_router(learning_router)
-
 app.include_router(enrollments_router)
 
+
+# =========================================================
+# ADMIN ROUTES
+# =========================================================
+
+app.include_router(admin_dashboard_router)
+app.include_router(admin_courses_router)
+app.include_router(admin_modules_router)
+app.include_router(admin_topics.router)
+app.include_router(admin_users_router)
+app.include_router(admin_problems_router)
 
 
 # =========================================================
@@ -76,6 +96,7 @@ app.include_router(enrollments_router)
 
 @app.get("/")
 def root():
+
     return {
         "message": "Java Learning Platform API is running 🚀"
     }

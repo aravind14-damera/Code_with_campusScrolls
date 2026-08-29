@@ -48,9 +48,7 @@ export const AuthProvider = ({ children }) => {
 
 
         if (storedToken) {
-
             setToken(storedToken);
-
         }
 
 
@@ -85,10 +83,7 @@ export const AuthProvider = ({ children }) => {
     // LOGIN
     // =====================================================
 
-    const login = async (
-        email,
-        password
-    ) => {
+    const login = async (email, password) => {
 
         const response = await axios.post(
             `${API_URL}/auth/login`,
@@ -106,7 +101,6 @@ export const AuthProvider = ({ children }) => {
 
 
         // Save token
-
         localStorage.setItem(
             "access_token",
             access_token
@@ -114,15 +108,13 @@ export const AuthProvider = ({ children }) => {
 
 
         // Save user
-
         localStorage.setItem(
             "user",
             JSON.stringify(loggedInUser)
         );
 
 
-        // Update React state
-
+        // Update state
         setToken(access_token);
 
         setUser(loggedInUser);
@@ -139,6 +131,44 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
 
+        localStorage.removeItem(
+            "access_token"
+        );
+
+        localStorage.removeItem(
+            "user"
+        );
+
+
+        setToken(null);
+
+        setUser(null);
+
+    };
+
+
+    // =====================================================
+    // DELETE ACCOUNT
+    // =====================================================
+
+    const deleteAccount = async () => {
+
+        if (!token) {
+            throw new Error("User is not authenticated");
+        }
+
+
+        await axios.delete(
+            `${API_URL}/auth/me`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+
+        // Clear local session after successful deletion
         localStorage.removeItem(
             "access_token"
         );
@@ -180,6 +210,8 @@ export const AuthProvider = ({ children }) => {
         login,
 
         logout,
+
+        deleteAccount,
 
     };
 

@@ -15,6 +15,12 @@ import Problem from "../pages/Problem";
 import Profile from "../pages/Profile";
 
 // =========================
+// ADMIN LOGIN
+// =========================
+
+import AdminLogin from "../pages/admin/AdminLogin";
+
+// =========================
 // ADMIN PAGES
 // =========================
 
@@ -23,7 +29,10 @@ import ManageCourses from "../pages/admin/ManageCourses";
 import ManageModules from "../pages/admin/ManageModules";
 import ManageTopics from "../pages/admin/ManageTopics";
 import ManageProblems from "../pages/admin/ManageProblems";
+import AddProblem from "../pages/admin/AddProblem";
 import ManageUsers from "../pages/admin/ManageUsers";
+import ManageMaterials from "../pages/admin/ManageMaterials";
+import AddMaterial from "../pages/AddMaterial";
 
 // =========================
 // PROTECTED ROUTE
@@ -31,22 +40,19 @@ import ManageUsers from "../pages/admin/ManageUsers";
 
 import ProtectedRoute from "./ProtectedRoute";
 
+
 const AppRoutes = () => {
     return (
         <Routes>
 
             {/* =========================
-                HOME
+                PUBLIC
             ========================= */}
 
             <Route
                 path="/"
                 element={<Home />}
             />
-
-            {/* =========================
-                AUTH
-            ========================= */}
 
             <Route
                 path="/login"
@@ -57,6 +63,7 @@ const AppRoutes = () => {
                 path="/signup"
                 element={<Signup />}
             />
+
 
             {/* =========================
                 COURSES
@@ -72,6 +79,7 @@ const AppRoutes = () => {
                 element={<Course />}
             />
 
+
             {/* =========================
                 MODULES
             ========================= */}
@@ -80,6 +88,7 @@ const AppRoutes = () => {
                 path="/modules/:moduleId"
                 element={<Module />}
             />
+
 
             {/* =========================
                 TOPICS
@@ -90,14 +99,16 @@ const AppRoutes = () => {
                 element={<Topic />}
             />
 
+
             {/* =========================
-                PROBLEMS
+                STUDENT PROBLEM
             ========================= */}
 
             <Route
                 path="/problems/:problemId"
                 element={<Problem />}
             />
+
 
             {/* =========================
                 PROFILE
@@ -112,8 +123,19 @@ const AppRoutes = () => {
                 }
             />
 
+
             {/* =========================
-                ADMIN
+                ADMIN LOGIN
+            ========================= */}
+
+            <Route
+                path="/admin/login"
+                element={<AdminLogin />}
+            />
+
+
+            {/* =========================
+                ADMIN DASHBOARD
             ========================= */}
 
             <Route
@@ -125,6 +147,11 @@ const AppRoutes = () => {
                 }
             />
 
+
+            {/* =========================
+                ADMIN COURSES
+            ========================= */}
+
             <Route
                 path="/admin/courses"
                 element={
@@ -133,6 +160,11 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+
+
+            {/* =========================
+                ADMIN MODULES
+            ========================= */}
 
             <Route
                 path="/admin/modules"
@@ -143,6 +175,11 @@ const AppRoutes = () => {
                 }
             />
 
+
+            {/* =========================
+                ADMIN TOPICS
+            ========================= */}
+
             <Route
                 path="/admin/topics"
                 element={
@@ -151,6 +188,11 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+
+
+            {/* =========================
+                ADMIN PROBLEMS
+            ========================= */}
 
             <Route
                 path="/admin/problems"
@@ -161,6 +203,25 @@ const AppRoutes = () => {
                 }
             />
 
+            {
+/* =========================
+    ADD PROBLEM
+========================= */}
+
+<Route
+    path="/admin/problems/add"
+    element={
+        <ProtectedRoute>
+            <AddProblem />
+        </ProtectedRoute>
+    }
+/>
+
+
+            {/* =========================
+                ADMIN USERS
+            ========================= */}
+
             <Route
                 path="/admin/users"
                 element={
@@ -170,6 +231,35 @@ const AppRoutes = () => {
                 }
             />
 
+
+            {/* =========================
+                ADMIN MATERIALS
+            ========================= */}
+
+            <Route
+                path="/admin/materials"
+                element={
+                    <ProtectedRoute>
+                        <ManageMaterials />
+                    </ProtectedRoute>
+                }
+            />
+
+
+            {/* =========================
+                ADD MATERIAL
+            ========================= */}
+
+            <Route
+                path="/admin/materials/add"
+                element={
+                    <ProtectedRoute>
+                        <AddMaterial />
+                    </ProtectedRoute>
+                }
+            />
+
+
             {/* =========================
                 404
             ========================= */}
@@ -177,8 +267,9 @@ const AppRoutes = () => {
             <Route
                 path="*"
                 element={
-                    <div className="flex min-h-[60vh] items-center justify-center px-6">
+                    <div className="min-h-[60vh] flex items-center justify-center bg-white px-6">
                         <div className="text-center">
+
                             <h1 className="text-4xl font-bold text-slate-900">
                                 404
                             </h1>
@@ -186,6 +277,7 @@ const AppRoutes = () => {
                             <p className="mt-2 text-slate-500">
                                 Page not found.
                             </p>
+
                         </div>
                     </div>
                 }
@@ -194,5 +286,6 @@ const AppRoutes = () => {
         </Routes>
     );
 };
+
 
 export default AppRoutes;

@@ -1,11 +1,14 @@
 import cloudinary.uploader
 
 
-def upload_pdf(file_path: str, folder: str):
+def upload_pdf(file, folder: str):
+
     result = cloudinary.uploader.upload(
-        file_path,
-        resource_type="image",
-        folder=folder
+        file,
+        resource_type="raw",
+        folder=folder,
+        use_filename=True,
+        unique_filename=True
     )
 
     return {
