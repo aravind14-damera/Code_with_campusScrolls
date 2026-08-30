@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,7 +19,6 @@ from app.routes.problems import router as problems_router
 from app.routes.progress import router as progress_router
 from app.routes.learning import router as learning_router
 from app.routes.enrollments import router as enrollments_router
-
 
 
 # =========================================================
@@ -44,6 +45,16 @@ app = FastAPI(
 
 
 # =========================================================
+# FRONTEND URL
+# =========================================================
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:5173"
+).rstrip("/")
+
+
+# =========================================================
 # CORS
 # =========================================================
 
@@ -53,6 +64,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        FRONTEND_URL,
     ],
 
     allow_credentials=True,
