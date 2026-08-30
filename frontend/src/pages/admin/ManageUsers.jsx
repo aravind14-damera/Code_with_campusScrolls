@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
 
+
+// =========================================================
+// API URL
+// =========================================================
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+
+// =========================================================
+// MANAGE USERS
+// =========================================================
+
 const ManageUsers = () => {
 
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
 
     // =====================================================
     // FETCH USERS
@@ -17,19 +30,29 @@ const ManageUsers = () => {
             setLoading(true);
             setError("");
 
+
             // Your login stores access_token
-            const token = localStorage.getItem("access_token");
+            const token =
+                localStorage.getItem("access_token");
+
 
             if (!token) {
-                setError("Not authenticated. Please login again.");
+
+                setError(
+                    "Not authenticated. Please login again."
+                );
+
                 setLoading(false);
+
                 return;
             }
 
+
             const response = await fetch(
-                "http://127.0.0.1:8000/admin/users",
+                `${API_URL}/admin/users`,
                 {
                     method: "GET",
+
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
@@ -37,20 +60,27 @@ const ManageUsers = () => {
                 }
             );
 
+
             const data = await response.json();
+
 
             if (!response.ok) {
 
                 throw new Error(
-                    data.detail || "Failed to fetch users"
+                    data.detail ||
+                    "Failed to fetch users"
                 );
             }
+
 
             setUsers(data);
 
         } catch (error) {
 
-            console.error("Error fetching users:", error);
+            console.error(
+                "Error fetching users:",
+                error
+            );
 
             setError(error.message);
 
@@ -94,14 +124,21 @@ const ManageUsers = () => {
     if (loading) {
 
         return (
+
             <div className="min-h-screen bg-white p-8">
 
-                <div className="flex justify-center items-center min-h-[400px]">
+                <div className="
+                    flex
+                    justify-center
+                    items-center
+                    min-h-[400px]
+                ">
 
                     <div className="text-center">
 
                         <div className="
-                            w-10 h-10
+                            w-10
+                            h-10
                             border-4
                             border-blue-200
                             border-t-blue-600
@@ -110,7 +147,10 @@ const ManageUsers = () => {
                             mx-auto
                         "></div>
 
-                        <p className="mt-4 text-slate-500">
+                        <p className="
+                            mt-4
+                            text-slate-500
+                        ">
                             Loading users...
                         </p>
 
@@ -129,7 +169,12 @@ const ManageUsers = () => {
 
     return (
 
-        <div className="min-h-screen bg-white text-slate-900 p-8">
+        <div className="
+            min-h-screen
+            bg-white
+            text-slate-900
+            p-8
+        ">
 
             {/* =================================================
                 HEADER
@@ -236,7 +281,10 @@ const ManageUsers = () => {
                     shadow-sm
                 ">
 
-                    <p className="text-slate-500 text-sm">
+                    <p className="
+                        text-slate-500
+                        text-sm
+                    ">
                         Total Users
                     </p>
 
@@ -262,7 +310,10 @@ const ManageUsers = () => {
                     shadow-sm
                 ">
 
-                    <p className="text-slate-500 text-sm">
+                    <p className="
+                        text-slate-500
+                        text-sm
+                    ">
                         Active Users
                     </p>
 
@@ -289,7 +340,10 @@ const ManageUsers = () => {
                     shadow-sm
                 ">
 
-                    <p className="text-slate-500 text-sm">
+                    <p className="
+                        text-slate-500
+                        text-sm
+                    ">
                         Administrators
                     </p>
 
@@ -389,7 +443,10 @@ const ManageUsers = () => {
 
                     <div className="overflow-x-auto">
 
-                        <table className="w-full text-left">
+                        <table className="
+                            w-full
+                            text-left
+                        ">
 
                             {/* TABLE HEADER */}
 
@@ -516,7 +573,10 @@ const ManageUsers = () => {
 
                                         {/* ROLE */}
 
-                                        <td className="px-6 py-5">
+                                        <td className="
+                                            px-6
+                                            py-5
+                                        ">
 
                                             <span className={`
                                                 px-3
@@ -539,7 +599,10 @@ const ManageUsers = () => {
 
                                         {/* STATUS */}
 
-                                        <td className="px-6 py-5">
+                                        <td className="
+                                            px-6
+                                            py-5
+                                        ">
 
                                             <span className={`
                                                 px-3
@@ -576,5 +639,6 @@ const ManageUsers = () => {
         </div>
     );
 };
+
 
 export default ManageUsers;
