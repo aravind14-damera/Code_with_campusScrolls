@@ -1,17 +1,30 @@
 @import "tailwindcss";
 
+
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
 * {
     box-sizing: border-box;
 }
 
+
 html {
     scroll-behavior: smooth;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
+
 
 body {
     margin: 0;
+    width: 100%;
+    max-width: 100%;
     min-width: 320px;
     min-height: 100vh;
+
     font-family:
         Inter,
         system-ui,
@@ -19,9 +32,29 @@ body {
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-    background: #020617;
-    color: white;
+
+    background: #ffffff;
+    color: #0f172a;
+
+    overflow-x: hidden;
 }
+
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+#root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   FORM ELEMENTS
+========================================================= */
 
 button,
 input,
@@ -30,10 +63,40 @@ select {
     font: inherit;
 }
 
+
 button {
     cursor: pointer;
 }
 
+
 a {
     text-decoration: none;
+}
+
+
+/* =========================================================
+   IMAGES
+========================================================= */
+
+img,
+svg,
+video {
+    max-width: 100%;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 640px) {
+
+    html,
+    body,
+    #root {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
 }

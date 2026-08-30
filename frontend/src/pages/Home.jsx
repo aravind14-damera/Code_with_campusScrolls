@@ -1,54 +1,127 @@
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+
     const navigate = useNavigate();
 
     return (
-        <main className="min-h-screen bg-white text-slate-900">
 
-            {/* =========================
+        <main className="
+            min-h-screen
+            w-full
+            max-w-full
+            overflow-x-hidden
+            bg-white
+            text-slate-900
+        ">
+
+            {/* =================================================
                 HERO SECTION
-            ========================= */}
+            ================================================= */}
 
-            <section className="relative overflow-hidden">
+            <section className="
+                relative
+                w-full
+                overflow-hidden
+            ">
 
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-white to-white" />
+                {/* Background */}
 
-                <div className="relative max-w-7xl mx-auto px-6">
+                <div className="
+                    absolute
+                    inset-0
+                    bg-gradient-to-b
+                    from-blue-50
+                    via-white
+                    to-white
+                " />
 
-                    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
 
-                        <div className="text-center max-w-4xl">
+                {/* Content */}
 
-                            {/* Badge */}
+                <div className="
+                    relative
+                    w-full
+                    max-w-7xl
+                    mx-auto
+                    px-4
+                    sm:px-6
+                    lg:px-8
+                ">
+
+                    <div className="
+                        min-h-[calc(100vh-80px)]
+                        flex
+                        items-center
+                        justify-center
+                        py-12
+                        sm:py-16
+                        lg:py-20
+                    ">
+
+                        <div className="
+                            w-full
+                            max-w-4xl
+                            text-center
+                        ">
+
+                            {/* =================================================
+                                BADGE
+                            ================================================= */}
+
                             <div className="
                                 inline-flex
+                                max-w-full
                                 items-center
+                                justify-center
                                 gap-2
-                                px-5
+                                px-4
+                                sm:px-5
                                 py-2
                                 rounded-full
                                 border
                                 border-blue-100
                                 bg-blue-50
                                 text-blue-600
-                                text-sm
+                                text-xs
+                                sm:text-sm
                                 font-semibold
-                                mb-8
+                                mb-6
+                                sm:mb-8
                             ">
-                                🚀
-                                <span>Learn. Practice. Grow.</span>
+
+                                <span>
+                                    🚀
+                                </span>
+
+                                <span>
+                                    Learn. Practice. Grow.
+                                </span>
+
                             </div>
 
-                            {/* Heading */}
+
+                            {/* =================================================
+                                HEADING
+                            ================================================= */}
+
                             <h1 className="
-                                text-5xl
-                                md:text-7xl
+                                text-4xl
+                                sm:text-5xl
+                                md:text-6xl
+                                lg:text-7xl
                                 font-extrabold
                                 tracking-tight
-                                leading-tight
+                                leading-[1.1]
                             ">
-                                Learn Programming
+
+                                <span className="block">
+                                    Learn
+                                </span>
+
+                                <span className="block">
+                                    Programming
+                                </span>
 
                                 <span className="
                                     block
@@ -56,30 +129,55 @@ const Home = () => {
                                 ">
                                     The Smarter Way
                                 </span>
+
                             </h1>
 
-                            {/* Description */}
+
+                            {/* =================================================
+                                DESCRIPTION
+                            ================================================= */}
+
                             <p className="
-                                mt-7
-                                text-lg
+                                mt-6
+                                sm:mt-7
+                                mx-auto
+                                max-w-xl
+                                sm:max-w-2xl
+                                text-base
+                                sm:text-lg
                                 md:text-xl
                                 text-slate-500
-                                max-w-2xl
-                                mx-auto
-                                leading-8
+                                leading-7
+                                sm:leading-8
+                                px-2
                             ">
+
                                 Build strong programming fundamentals through
                                 structured learning, practical coding problems,
                                 and progress tracking.
+
                             </p>
 
-                            {/* Login Button */}
+
+                            {/* =================================================
+                                LOGIN BUTTON
+                            ================================================= */}
+
                             <button
                                 onClick={() => navigate("/login")}
                                 className="
-                                    mt-10
-                                    px-8
-                                    py-4
+                                    mt-8
+                                    sm:mt-10
+                                    inline-flex
+                                    items-center
+                                    justify-center
+                                    w-full
+                                    max-w-[220px]
+                                    sm:w-auto
+                                    px-7
+                                    sm:px-8
+                                    py-3.5
+                                    sm:py-4
                                     rounded-xl
                                     bg-blue-600
                                     text-white
@@ -93,7 +191,9 @@ const Home = () => {
                                     hover:shadow-xl
                                 "
                             >
+
                                 Login to Start →
+
                             </button>
 
                         </div>
@@ -105,55 +205,96 @@ const Home = () => {
             </section>
 
 
-            {/* =========================
+            {/* =================================================
                 FEATURES
-            ========================= */}
+            ================================================= */}
 
             <section className="
+                w-full
                 border-t
                 border-slate-100
                 bg-slate-50
-                py-24
+                py-16
+                sm:py-20
+                lg:py-24
             ">
 
-                <div className="max-w-6xl mx-auto px-6">
+                <div className="
+                    w-full
+                    max-w-6xl
+                    mx-auto
+                    px-4
+                    sm:px-6
+                    lg:px-8
+                ">
 
-                    <div className="text-center mb-14">
+
+                    {/* =================================================
+                        FEATURE HEADER
+                    ================================================= */}
+
+                    <div className="
+                        text-center
+                        mb-10
+                        sm:mb-14
+                    ">
 
                         <p className="
                             text-blue-600
                             font-semibold
                             tracking-wider
                             uppercase
-                            text-sm
+                            text-xs
+                            sm:text-sm
                         ">
+
                             Why CodeWithCampusScrolls?
+
                         </p>
+
 
                         <h2 className="
                             mt-3
-                            text-3xl
+                            text-2xl
+                            sm:text-3xl
                             md:text-4xl
                             font-bold
                         ">
+
                             Everything you need to learn
+
                         </h2>
+
 
                         <p className="
                             mt-4
+                            mx-auto
+                            max-w-2xl
+                            text-sm
+                            sm:text-base
                             text-slate-500
+                            leading-6
+                            sm:leading-7
                         ">
+
                             Learn concepts, practice problems and track your
                             progress in one place.
+
                         </p>
 
                     </div>
 
 
+                    {/* =================================================
+                        FEATURE CARDS
+                    ================================================= */}
+
                     <div className="
                         grid
+                        grid-cols-1
                         md:grid-cols-3
-                        gap-6
+                        gap-5
+                        sm:gap-6
                     ">
 
                         {[
@@ -178,11 +319,13 @@ const Home = () => {
                                 key={item.title}
                                 className="
                                     group
+                                    w-full
                                     bg-white
                                     border
                                     border-slate-200
                                     rounded-2xl
-                                    p-7
+                                    p-5
+                                    sm:p-7
                                     transition-all
                                     duration-300
                                     hover:-translate-y-2
@@ -192,36 +335,58 @@ const Home = () => {
                                 "
                             >
 
+                                {/* Icon */}
+
                                 <div className="
-                                    w-14
-                                    h-14
+                                    w-12
+                                    h-12
+                                    sm:w-14
+                                    sm:h-14
                                     flex
                                     items-center
                                     justify-center
                                     rounded-xl
                                     bg-blue-50
-                                    text-2xl
+                                    text-xl
+                                    sm:text-2xl
                                     transition-transform
                                     duration-300
                                     group-hover:scale-110
                                 ">
+
                                     {item.icon}
+
                                 </div>
 
+
+                                {/* Title */}
+
                                 <h3 className="
-                                    mt-6
-                                    text-xl
+                                    mt-5
+                                    sm:mt-6
+                                    text-lg
+                                    sm:text-xl
                                     font-bold
                                 ">
+
                                     {item.title}
+
                                 </h3>
+
+
+                                {/* Description */}
 
                                 <p className="
                                     mt-3
+                                    text-sm
+                                    sm:text-base
                                     text-slate-500
-                                    leading-7
+                                    leading-6
+                                    sm:leading-7
                                 ">
+
                                     {item.text}
+
                                 </p>
 
                             </div>
@@ -234,9 +399,9 @@ const Home = () => {
 
             </section>
 
-
         </main>
     );
 };
+
 
 export default Home;
